@@ -68,7 +68,7 @@ Please make sure you have pulled and pushed all code before deploying:
             # make sure we have any other deployment tags that have been pushed by others so our auto-increment code doesn't create conflicting tags
             `git fetch`
 
-            send "tag_#{stage}"
+            stage.to_s =~ /staging/ ? tag_staging : tag_production
 
             system "git push --tags origin #{local_branch}"
             if $? != 0
@@ -80,7 +80,7 @@ Please make sure you have pulled and pushed all code before deploying:
           task :commit_log do
             from_tag = if stage == :production
                          last_production_tag
-                       elsif stage == :staging
+                       elsif stage.to_s =~ /staging/
                          last_staging_tag
                        else
                          abort "Unsupported stage #{stage}"
@@ -92,7 +92,7 @@ Please make sure you have pulled and pushed all code before deploying:
                          puts "Calculating 'end' tag for :commit_log for '#{stage}'"
                          to_tag = if stage == :production
                                     last_staging_tag
-                                  elsif stage == :staging
+                                  elsif stage.to_s =~ /staging/
                                     'master'
                                   else
                                     abort "Unsupported stage #{stage}"
